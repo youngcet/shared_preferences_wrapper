@@ -1,4 +1,4 @@
-```markdown
+
 # SharedPreferences Wrapper
 
 A Flutter package that provides a simple wrapper for working with shared preferences. This package simplifies the process of storing and retrieving various data types, including strings, integers, doubles, booleans, lists, and maps in shared preferences.
