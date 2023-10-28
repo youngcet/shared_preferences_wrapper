@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Shared Preferences Wrapper Demo Home Page'),
+      home:
+          const MyHomePage(title: 'Shared Preferences Wrapper Demo Home Page'),
     );
   }
 }
@@ -40,7 +41,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  
   String stringValue = 'Yung';
   int intValue = 1;
   double doubleValue = 2.0;
@@ -55,25 +55,26 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      // store values
+      await SharedPreferencesWrapper.addString('key', 'value');
 
-        // store values
-        await SharedPreferencesWrapper.addString('key', 'value');
+      // retrieve values
+      final stringResult = await SharedPreferencesWrapper.getString('key');
+      print(stringResult);
 
-        // retrieve values
-        final stringResult = await SharedPreferencesWrapper.getString('key');
-        print(stringResult);
+      // storing lists
+      await SharedPreferencesWrapper.addStringList('listkey', myStringList);
+      // retrieving a list
+      List<String> value =
+          await SharedPreferencesWrapper.getStringList('listkey');
 
-        // storing lists
-        await SharedPreferencesWrapper.addStringList('listkey', myStringList);
-        // retrieving a list
-        List<String> value = await SharedPreferencesWrapper.getStringList('listkey');
+      // storing maps
+      await SharedPreferencesWrapper.addMap('mapkey', myMap);
+      // retrieving a map
+      Map<String, dynamic>? map =
+          await SharedPreferencesWrapper.getMap('mapkey');
 
-        // storing maps
-        await SharedPreferencesWrapper.addMap('mapkey', myMap);
-        // retrieving a map
-        Map<String, dynamic>? map = await SharedPreferencesWrapper.getMap('mapkey');
-
-        // check out the function below for storing and retrieving other data types and for more functions
+      // check out the function below for storing and retrieving other data types and for more functions
     });
   }
 
@@ -162,17 +163,18 @@ class _MyHomePageState extends State<MyHomePage> {
     await SharedPreferencesWrapper.clearAll();
   }
 
-  Future<Map<String, dynamic>> getAll() async{
-    Map<String, dynamic> allPreferences = await SharedPreferencesWrapper.getAllSharedPreferences();
+  Future<Map<String, dynamic>> getAll() async {
+    Map<String, dynamic> allPreferences =
+        await SharedPreferencesWrapper.getAllSharedPreferences();
     return allPreferences;
   }
 
-  Future<bool> keyExists(String myKey) async{
+  Future<bool> keyExists(String myKey) async {
     bool? exists = await SharedPreferencesWrapper.keyExists(myKey);
     return exists;
   }
 
-  Future<bool> empty() async{
+  Future<bool> empty() async {
     bool? isEmpty = await SharedPreferencesWrapper.isSharedPreferencesEmpty();
     return isEmpty;
   }
@@ -187,7 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('',
+            const Text(
+              '',
             ),
           ],
         ),

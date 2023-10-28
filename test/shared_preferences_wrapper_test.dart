@@ -8,7 +8,7 @@ void main() {
   setUp(() {
     setupSharedPreferences(); // Initialize mock SharedPreferences.
   });
-  
+
   testWidgets('MyApp widget test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp());
@@ -17,38 +17,47 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.runAsync(() => MyApp().addStringToWrapper('string'));
-    final stringResult = await tester.runAsync(() => MyApp().getStringFromSF('string'));
+    final stringResult =
+        await tester.runAsync(() => MyApp().getStringFromSF('string'));
     expect(stringResult, 'Yung');
-    
+
     await tester.runAsync(() => MyApp().addIntToWrapper('int'));
     final intResult = await tester.runAsync(() => MyApp().getIntFromSF('int'));
     expect(intResult, 1);
 
     await tester.runAsync(() => MyApp().addDoubleToWrapper('double'));
-    final doubleResult = await tester.runAsync(() => MyApp().getDoubleFromSF('double'));
+    final doubleResult =
+        await tester.runAsync(() => MyApp().getDoubleFromSF('double'));
     expect(doubleResult, 2.0);
 
     await tester.runAsync(() => MyApp().addBoolWrapper('bool'));
-    final boolResult = await tester.runAsync(() => MyApp().getBoolFromSF('bool'));
+    final boolResult =
+        await tester.runAsync(() => MyApp().getBoolFromSF('bool'));
     expect(boolResult, true);
 
-    Map<String, dynamic> allPrefs = {'string': 'Yung', 'int': 1, 'double': 2.0, 'bool': true};
+    Map<String, dynamic> allPrefs = {
+      'string': 'Yung',
+      'int': 1,
+      'double': 2.0,
+      'bool': true
+    };
     final getAll = await tester.runAsync(() => MyApp().getAll());
     expect(getAll, allPrefs);
 
-    final remove = await tester.runAsync(() => MyApp().remove('bool'));
+    await tester.runAsync(() => MyApp().remove('bool'));
     final exists = await tester.runAsync(() => MyApp().keyExists('bool'));
     expect(exists, false);
 
-    final clear = await tester.runAsync(() => MyApp().clearPreferences());
+    await tester.runAsync(() => MyApp().clearPreferences());
     final isEmpty = await tester.runAsync(() => MyApp().empty());
     expect(isEmpty, true);
 
-    final stringList = await tester.runAsync(() => MyApp().addStringList('list'));
-    final getStringList = await tester.runAsync(() => MyApp().getStringList('list'));
+    tester.runAsync(() => MyApp().addStringList('list'));
+    final getStringList =
+        await tester.runAsync(() => MyApp().getStringList('list'));
     expect(getStringList, ['item1', 'item2', 'item3']);
 
-    final map = await tester.runAsync(() => MyApp().addMap('map'));
+    await tester.runAsync(() => MyApp().addMap('map'));
     final mapResult = await tester.runAsync(() => MyApp().getMap('map'));
     expect(mapResult, {
       'name': 'Yung',
@@ -60,39 +69,36 @@ void main() {
     expect(mapKey, 30);
 
     await tester.runAsync(() => MyApp().updateMapKey('map', 'age', 40));
-    final updatedMapKey = await tester.runAsync(() => MyApp().getMapKey('map', 'age'));
+    final updatedMapKey =
+        await tester.runAsync(() => MyApp().getMapKey('map', 'age'));
     expect(updatedMapKey, 40);
 
     await tester.runAsync(() => MyApp().updateMap('map', {'surname': 'Cet'}));
-    final containsKey = await tester.runAsync(() => MyApp().mapContainsKey('map', 'surname'));
+    final containsKey =
+        await tester.runAsync(() => MyApp().mapContainsKey('map', 'surname'));
     expect(containsKey, true);
 
     await tester.runAsync(() => MyApp().removeMapKey('map', 'surname'));
-    final removedKey = await tester.runAsync(() => MyApp().mapContainsKey('map', 'surname'));
+    final removedKey =
+        await tester.runAsync(() => MyApp().mapContainsKey('map', 'surname'));
     expect(removedKey, false);
-
   });
 }
 
 class MyApp extends StatelessWidget {
-
   // values
-  String stringValue = 'Yung';
-  int intValue = 1;
-  double doubleValue = 2.0;
-  bool boolValue = true;
-  List<String> myStringList = ['item1', 'item2', 'item3'];
+  final String stringValue = 'Yung';
+  final int intValue = 1;
+  final double doubleValue = 2.0;
+  final bool boolValue = true;
+  final List<String> myStringList = ['item1', 'item2', 'item3'];
   final myMap = {
     'name': 'Yung',
     'age': 30,
     'isStudent': true,
   };
 
-  @override
-  void initState() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-    });
-  }
+  MyApp({super.key});
 
   Future<void> addStringToWrapper(String myKey) async {
     await SharedPreferencesWrapper.addString(myKey, stringValue);
@@ -178,24 +184,25 @@ class MyApp extends StatelessWidget {
     await SharedPreferencesWrapper.clearAll();
   }
 
-  Future<Map<String, dynamic>> getAll() async{
-    Map<String, dynamic> allPreferences = await SharedPreferencesWrapper.getAllSharedPreferences();
+  Future<Map<String, dynamic>> getAll() async {
+    Map<String, dynamic> allPreferences =
+        await SharedPreferencesWrapper.getAllSharedPreferences();
     return allPreferences;
   }
 
-  Future<bool> keyExists(String myKey) async{
+  Future<bool> keyExists(String myKey) async {
     bool? exists = await SharedPreferencesWrapper.keyExists(myKey);
     return exists;
   }
 
-  Future<bool> empty() async{
+  Future<bool> empty() async {
     bool? isEmpty = await SharedPreferencesWrapper.isSharedPreferencesEmpty();
     return isEmpty;
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'My App',
       home: Scaffold(
         body: Center(

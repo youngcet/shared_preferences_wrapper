@@ -21,7 +21,7 @@ To use this package, add it to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shared_preferences_wrapper: ^1.0.0
+  shared_preferences_wrapper: ^0.0.1
 ```
 
 ## Usage
