@@ -73,6 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // retrieving a map
       Map<String, dynamic>? map =
           await SharedPreferencesWrapper.getMap('mapkey');
+      
+      String? token = await SharedPreferencesWrapper.getCloudStorageToken();
+      
 
       // check out the function below for storing and retrieving other data types and for more functions
     });

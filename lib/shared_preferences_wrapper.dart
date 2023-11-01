@@ -2,8 +2,10 @@
 library shared_preferences_wrapper;
 
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class SharedPreferencesWrapper {
   /// Adds a string value to shared preferences with the given [key].
@@ -196,5 +198,35 @@ class SharedPreferencesWrapper {
     Set<String> keys = prefs.getKeys();
 
     return keys.isEmpty;
+  }
+
+  static Future<String> getCloudStorageToken() async{
+    final currentDateTime = DateTime.now();
+    final oneHourLater = currentDateTime.add(const Duration(hours: 1));
+
+    final currentTimestamp = currentDateTime.millisecondsSinceEpoch ~/ 1000;
+    final oneHourLaterTimestamp = oneHourLater.millisecondsSinceEpoch ~/ 1000;
+
+    var data = {
+      'payload': {
+        'iss': 'shared_preferences_wrapper',
+        'aud': 'https://permanentlink.co.za/api/v1/flutter/shared_preferences_wrapper/cloud_storage',
+        'iat': currentTimestamp,
+        'exp': oneHourLaterTimestamp,
+      },
+    };
+
+    final results = await http.post(
+      Uri.parse('https://permanentlink.co.za/api/v1/flutter/shared_preferences_wrapper/cloud_storage_auth'), 
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'APIKEY': 'ed47d3d45bd9e52b7fdb06f7a94bbe7e',
+      },
+      body: jsonEncode(data)
+    );
+
+    inspect(results);
+
+    return '';
   }
 }
