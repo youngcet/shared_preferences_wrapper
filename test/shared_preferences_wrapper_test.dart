@@ -16,6 +16,8 @@ void main() {
     // Pump frames to allow the widget to build.
     await tester.pumpAndSettle();
 
+    await tester.runAsync(() => MyApp().encrypt());
+
     await tester.runAsync(() => MyApp().addStringToWrapper('string'));
     final stringResult =
         await tester.runAsync(() => MyApp().getStringFromSF('string'));
@@ -88,6 +90,7 @@ void main() {
 class MyApp extends StatelessWidget {
   // values
   final String stringValue = 'Yung';
+  final String encryptionKey = 'my16CharacterKey';
   final int intValue = 1;
   final double doubleValue = 2.0;
   final bool boolValue = true;
@@ -99,6 +102,10 @@ class MyApp extends StatelessWidget {
   };
 
   MyApp({super.key});
+
+  Future<void> encrypt() async {
+    SharedPreferencesWrapperEncryption.setEncryptionKey(encryptionKey);
+  }
 
   Future<void> addStringToWrapper(String myKey) async {
     await SharedPreferencesWrapper.addString(myKey, stringValue);

@@ -52,131 +52,102 @@ class _MyHomePageState extends State<MyHomePage> {
     'isStudent': true,
   };
 
+  String text = '';
+
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      // store values
+      // set an encryption key, this has to be 16/24/32 character long
+      // CURRENTLY ONLY STRINGS ARE SUPPORTED
+      SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
+
+      // Registering Listeners with callback function for when a shared preference changes
+      SharedPreferencesWrapper.addListener('key', () async {
+        final updatedString = await SharedPreferencesWrapper.getString('key');
+        setState(() {
+          text += '\nUpdated String Value: $updatedString';
+        });
+      });
+
+      SharedPreferencesWrapper.addListener('int', () async {
+        final updatedInt = await SharedPreferencesWrapper.getInt('int');
+        setState(() {
+          text += '\nUpdated Int Value: $updatedInt';
+        });
+      });
+
+      // to trigger registered listeners callback
+      Future.delayed(const Duration(seconds: 10), () {
+        SharedPreferencesWrapper.addString('key', 'updated value');
+        SharedPreferencesWrapper.addInt('int', 200);
+      });
+
+      // storing values
+      // note: refer to the documentation for storing other data types
       await SharedPreferencesWrapper.addString('key', 'value');
+      await SharedPreferencesWrapper.addInt('int', 100);
 
       // retrieve values
       final stringResult = await SharedPreferencesWrapper.getString('key');
-      print(stringResult);
+      setState(() {
+        text += '\nString value stored: $stringResult';
+      });
 
       // storing lists
-      await SharedPreferencesWrapper.addStringList('listkey', myStringList);
+      SharedPreferencesWrapper.addStringList('listkey', myStringList);
       // retrieving a list
       List<String> value =
           await SharedPreferencesWrapper.getStringList('listkey');
 
+      setState(() {
+        text += '\nList value stored: $value';
+      });
+
       // storing maps
-      await SharedPreferencesWrapper.addMap('mapkey', myMap);
+      SharedPreferencesWrapper.addMap('mapkey', myMap);
       // retrieving a map
       Map<String, dynamic>? map =
           await SharedPreferencesWrapper.getMap('mapkey');
-    
-      // check out the function below for storing and retrieving other data types and for more functions
+
+      setState(() {
+        text += '\nStored Map values: $map';
+      });
+
+      // note: refer to the documentation for storing other data types
+
+      // Adding multiple preferences at once
+      Map<String, dynamic> dataToAdd = {
+        'key1': 'value1',
+        'key2': 42,
+        'key3': true,
+        'key4': ['item1', 'item2'],
+        'key5': {'nestedKey': 'nestedValue'},
+        // Add more key-value pairs as needed
+      };
+      await SharedPreferencesWrapper.addBatch(dataToAdd);
+      // access the batch data normally as you would,
+      //take note of the data type stored to call the correct corresponding method
+      bool boolValue = await SharedPreferencesWrapper.getBool('key3');
+      int intValue = await SharedPreferencesWrapper.getInt('key2');
+
+      setState(() {
+        text += '\n\nBatch Data: bool = $boolValue, int: = $intValue\n\n';
+      });
+
+      // Updating existing preferences in batch
+      Map<String, dynamic> dataToUpdate = {
+        'key3': false,
+        'key2': 100,
+        // Update other keys as needed
+      };
+      await SharedPreferencesWrapper.updateBatch(dataToUpdate);
+
+      bool boolValue1 = await SharedPreferencesWrapper.getBool('key3');
+      int intValue1 = await SharedPreferencesWrapper.getInt('key2');
+      setState(() {
+        text += 'Updated Batch Data: bool = $boolValue1, int: = $intValue1\n\n';
+      });
     });
-  }
-
-  Future<void> addStringToWrapper(String myKey) async {
-    await SharedPreferencesWrapper.addString(myKey, stringValue);
-    final stringResult = await getStringFromSF('string');
-  }
-
-  Future<void> addIntToWrapper(String myKey) async {
-    await SharedPreferencesWrapper.addInt(myKey, intValue);
-  }
-
-  Future<void> addDoubleToWrapper(String myKey) async {
-    await SharedPreferencesWrapper.addDouble(myKey, doubleValue);
-  }
-
-  Future<void> addBoolWrapper(String myKey) async {
-    await SharedPreferencesWrapper.addBool(myKey, boolValue);
-  }
-
-  Future<void> addStringList(String myKey) async {
-    await SharedPreferencesWrapper.addStringList(myKey, myStringList);
-  }
-
-  Future<void> addMap(String myKey) async {
-    await SharedPreferencesWrapper.addMap(myKey, myMap);
-  }
-
-  Future<String?> getStringFromSF(String myKey) async {
-    String? value = await SharedPreferencesWrapper.getString(myKey);
-    return value;
-  }
-
-  Future<int?> getIntFromSF(String myKey) async {
-    int? value = await SharedPreferencesWrapper.getInt(myKey);
-    return value;
-  }
-
-  Future<double?> getDoubleFromSF(String myKey) async {
-    double? value = await SharedPreferencesWrapper.getDouble(myKey);
-    return value;
-  }
-
-  Future<bool?> getBoolFromSF(String myKey) async {
-    bool? value = await SharedPreferencesWrapper.getBool(myKey);
-    return value;
-  }
-
-  Future<List<String>?> getStringList(String myKey) async {
-    List<String> value = await SharedPreferencesWrapper.getStringList(myKey);
-    return value;
-  }
-
-  Future<Map<String, dynamic>?> getMap(String myKey) async {
-    Map<String, dynamic>? value = await SharedPreferencesWrapper.getMap(myKey);
-    return value;
-  }
-
-  Future<dynamic> getMapKey(String myKey, String mapKey) async {
-    dynamic value = await SharedPreferencesWrapper.getMapKey(myKey, mapKey);
-    return value;
-  }
-
-  Future<void> updateMapKey(String myKey, String mapKey, dynamic value) async {
-    await SharedPreferencesWrapper.updateMapKey(myKey, mapKey, value);
-  }
-
-  Future<void> updateMap(String myKey, Map<String, dynamic> newMap) async {
-    await SharedPreferencesWrapper.updateMap(myKey, newMap);
-  }
-
-  Future<void> removeMapKey(String myKey, String mapKey) async {
-    await SharedPreferencesWrapper.removeMapKey(myKey, mapKey);
-  }
-
-  Future<bool> mapContainsKey(String myKey, String mapKey) async {
-    final value = await SharedPreferencesWrapper.mapContainsKey(myKey, mapKey);
-    return value;
-  }
-
-  Future<void> remove(String keyToRemove) async {
-    await SharedPreferencesWrapper.removeAtKey(keyToRemove);
-  }
-
-  Future<void> clearPreferences() async {
-    await SharedPreferencesWrapper.clearAll();
-  }
-
-  Future<Map<String, dynamic>> getAll() async {
-    Map<String, dynamic> allPreferences =
-        await SharedPreferencesWrapper.getAllSharedPreferences();
-    return allPreferences;
-  }
-
-  Future<bool> keyExists(String myKey) async {
-    bool? exists = await SharedPreferencesWrapper.keyExists(myKey);
-    return exists;
-  }
-
-  Future<bool> empty() async {
-    bool? isEmpty = await SharedPreferencesWrapper.isSharedPreferencesEmpty();
-    return isEmpty;
   }
 
   @override
@@ -189,8 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              '',
+            Text(
+              text,
             ),
           ],
         ),

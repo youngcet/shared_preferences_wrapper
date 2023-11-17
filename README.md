@@ -14,6 +14,9 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 - Remove specific keys or clear all data from shared preferences.
 - Retrieve all shared preferences as a map.
 - Check if shared preferences are empty.
+- Encrypt/Decrypt sensitive data stored in shared preferences
+- Add or update multiple key-value pairs in a single batch operation
+- Add or remove listeners for shared preference changes
 
 ## Installation
 
@@ -21,7 +24,7 @@ To use this package, add it to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shared_preferences_wrapper: ^0.0.1
+  shared_preferences_wrapper: ^0.0.2
 ```
 
 ## Usage
@@ -31,16 +34,46 @@ Here's how to use the `SharedPreferencesWrapper` to work with shared preferences
 ```dart
 import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
 
-// Add a string to shared preferences
-SharedPreferencesWrapper.addString('key', 'value');
+// To apply encryption, set an encryption key, this has to be 16/24/32 character long
+// CURRENTLY ONLY STRINGS ARE SUPPORTED
+SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
+
+// Registering Listeners with callback function for when a shared preference changes
+SharedPreferencesWrapper.addListener('key', () async{
+  final updatedString = await SharedPreferencesWrapper.getString('key');
+  setState(() {
+    text += '\nUpdated String Value: $updatedString';
+  });
+});
+
+// storing values
+// note: refer to the methods section for methods that store other data types
+await SharedPreferencesWrapper.addString('key', 'value');
+await SharedPreferencesWrapper.addInt('int', 100);
+await SharedPreferencesWrapper.addDouble('double', 10.0);
 
 // Retrieve a string from shared preferences
 String? retrievedValue = await SharedPreferencesWrapper.getString('key');
+int? intValue = await SharedPreferencesWrapper.getInt('key2');
+
+// access the batch data normally as you would, 
+//take note of the data type stored to call the correct corresponding method
+bool boolValue = await SharedPreferencesWrapper.getBool('key3');
+int intValue = await SharedPreferencesWrapper.getInt('key2');
+
+// Updating existing preferences in batch
+Map<String, dynamic> dataToUpdate = {
+  'key3': false,
+  'key2': 100,
+  // Update other keys as needed
+};
+await SharedPreferencesWrapper.updateBatch(dataToUpdate);
 ```
 
 Please refer to the example code provided in the package repository for more usage examples.
 
 ## Methods
+### Shared Preferences Wrapper
 
 - **addString(String key, String value)**: Adds a string to shared preferences.
 - **addInt(String key, int value)**: Adds an int to shared preferences.
@@ -64,6 +97,13 @@ Please refer to the example code provided in the package repository for more usa
 - **clearAll()**: Clears all shared preferences.
 - **getAllSharedPreferences()**: Gets all shared preferences.
 - **isSharedPreferencesEmpty()**: Checks if shared preferences is empty.
+- **addListener(String key, void Function() listener)**: Adds listeners for shared preference changes.
+- **removeListener(String key, VoidCallback listener)**: Removes listeners for shared preference changes.
+- **addBatch(Map<String, dynamic> data)**: Add multiple key-value pairs in a single batch operation.
+- **updateBatch(Map<String, dynamic> data)**: Update multiple key-value pairs in a single batch.
+
+### Shared Preferences Wrapper Encryption
+- **setEncryptionKey(String key)**: Sets an encryption key to encrypt and decrypt sensitive data stored in shared preferences. **CURRENTLY ONLY STRINGS ARE SUPPORTED.** This means that when the key is set, it will be applied to only String data types when adding and retrieving strings.
 
 ## Contributing
 
