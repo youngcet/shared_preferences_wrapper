@@ -61,6 +61,18 @@ int? intValue = await SharedPreferencesWrapper.getInt('key2');
 bool boolValue = await SharedPreferencesWrapper.getBool('key3');
 int intValue = await SharedPreferencesWrapper.getInt('key2');
 
+// Adding multiple preferences at once
+Map<String, dynamic> dataToAdd = {
+  'key1': 'value1',
+  'key2': 42,
+  'key3': true,
+  'key4': ['item1', 'item2'],
+  'key5': {'nestedKey': 'nestedValue'},
+  // Add more key-value pairs as needed
+};
+
+await SharedPreferencesWrapper.addBatch(dataToAdd);
+
 // Updating existing preferences in batch
 Map<String, dynamic> dataToUpdate = {
   'key3': false,
