@@ -54,12 +54,7 @@ await SharedPreferencesWrapper.addDouble('double', 10.0);
 
 // Retrieve a string from shared preferences
 String? retrievedValue = await SharedPreferencesWrapper.getString('key');
-int? intValue = await SharedPreferencesWrapper.getInt('key2');
-
-// access the batch data normally as you would, 
-//take note of the data type stored to call the correct corresponding method
-bool boolValue = await SharedPreferencesWrapper.getBool('key3');
-int intValue = await SharedPreferencesWrapper.getInt('key2');
+int? intValue = await SharedPreferencesWrapper.getInt('int');
 
 // Adding multiple preferences at once
 Map<String, dynamic> dataToAdd = {
@@ -72,6 +67,11 @@ Map<String, dynamic> dataToAdd = {
 };
 
 await SharedPreferencesWrapper.addBatch(dataToAdd);
+
+// access the batch data normally as you would, 
+//take note of the data type stored to call the correct corresponding method
+bool boolValue = await SharedPreferencesWrapper.getBool('key3');
+int intValue = await SharedPreferencesWrapper.getInt('key2');
 
 // Updating existing preferences in batch
 Map<String, dynamic> dataToUpdate = {
