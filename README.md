@@ -48,13 +48,21 @@ SharedPreferencesWrapper.addListener('key', () async{
 
 // storing values
 // note: refer to the methods section for methods that store other data types
-await SharedPreferencesWrapper.addString('key', 'value');
-await SharedPreferencesWrapper.addInt('int', 100);
-await SharedPreferencesWrapper.addDouble('double', 10.0);
+await SharedPreferencesWrapper.addString('key', 'value'); // storing strings
+await SharedPreferencesWrapper.addInt('int', 100);    // storing int
+await SharedPreferencesWrapper.addDouble('double', 10.0);   // storing double
+await SharedPreferencesWrapper.addBool('bool', true);   // storing bool
+await SharedPreferencesWrapper.addStringList('list', ['item 1', 'item 2', 'item 3']);   // storing lists
+await SharedPreferencesWrapper.addMap('map', {'key': 'value'});   // storing map
 
 // Retrieve a string from shared preferences
+// note: refer to the methods section for methods that store other data types
 String? retrievedValue = await SharedPreferencesWrapper.getString('key');
 int? intValue = await SharedPreferencesWrapper.getInt('int');
+double? value = await SharedPreferencesWrapper.getDouble('key');
+bool? value = await SharedPreferencesWrapper.getBool('key');
+List<String> value = await SharedPreferencesWrapper.getStringList('key');
+Map<String, dynamic>? value = await SharedPreferencesWrapper.getMap('key');
 
 // Adding multiple preferences at once
 Map<String, dynamic> dataToAdd = {
