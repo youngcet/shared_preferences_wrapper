@@ -9,6 +9,7 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 ## Features
 
 - Store and retrieve data types like strings, integers, doubles, booleans, lists, and maps in shared preferences.
+- Set default values for **string, bool, double, int** data types.
 - Easily update values within a map stored in shared preferences.
 - Check for the existence of keys in shared preferences.
 - Remove specific keys or clear all data from shared preferences.
@@ -17,6 +18,7 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 - Encrypt/Decrypt sensitive data stored in shared preferences
 - Add or update multiple key-value pairs in a single batch operation
 - Add or remove listeners for shared preference changes
+- Organize preferences based on specific groups or categories
 
 ## Installation
 
@@ -24,7 +26,7 @@ To use this package, add it to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shared_preferences_wrapper: ^0.0.2
+  shared_preferences_wrapper: ^0.0.3
 ```
 
 ## Usage
@@ -33,18 +35,6 @@ Here's how to use the `SharedPreferencesWrapper` to work with shared preferences
 
 ```dart
 import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
-
-// To apply encryption, set an encryption key, this has to be 16/24/32 character long
-// CURRENTLY ONLY STRINGS ARE SUPPORTED
-SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
-
-// Registering Listeners with callback function for when a shared preference changes
-SharedPreferencesWrapper.addListener('key', () async{
-  final updatedString = await SharedPreferencesWrapper.getString('key');
-  setState(() {
-    text += '\nUpdated String Value: $updatedString';
-  });
-});
 
 // storing values
 // note: refer to the methods section for methods that store other data types
@@ -63,7 +53,28 @@ double? value = await SharedPreferencesWrapper.getDouble('key');
 bool? value = await SharedPreferencesWrapper.getBool('key');
 List<String> value = await SharedPreferencesWrapper.getStringList('key');
 Map<String, dynamic>? value = await SharedPreferencesWrapper.getMap('key');
+```
+## Setting default values
+You can set default values that should be returned instead of null for **string, int, bool, double** data types.
 
+```dart
+// returns empty string instead of null
+String? stringValue = await SharedPreferencesWrapper.getString(myKey, defaultValue: '');
+
+// returns 0 instead of null
+int? intValue = await SharedPreferencesWrapper.getInt(myKey, defaultValue: 0);
+
+// returns 0.0 instead of null
+double? doubleValue = await SharedPreferencesWrapper.getDouble(myKey, defaultValue: 0.0);
+
+// returns false instead of null
+bool? boolValue = await SharedPreferencesWrapper.getBool(myKey, defaultValue: false);
+```
+
+## Single Batch Operation
+Add or update multiple key-value pairs in a single batch operation
+
+```dart
 // Adding multiple preferences at once
 Map<String, dynamic> dataToAdd = {
   'key1': 'value1',
@@ -90,10 +101,106 @@ Map<String, dynamic> dataToUpdate = {
 await SharedPreferencesWrapper.updateBatch(dataToUpdate);
 ```
 
+## Working with Listeners
+Listeners serve as the intermediaries that facilitate communication between different parts of a system, allowing components to react and respond to changes without direct coupling between them.
+
+There are two ways to add listeners.
+
+1) Using **addListener()** method
+```dart
+// define a function to handle the preference change
+void handleChangeListener() {
+  print("Listener triggered!");
+}
+
+@override
+  void initState() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      // Registering Listeners with callback function for when a shared preference changes
+      SharedPreferencesWrapper.addListener('key', handleChangeListener);
+    });
+}
+```
+
+You can also define a callback function inline as below, however, if you're planning on removing the listener at some point it is better to define a callback function as shown above to ensure that the function signatures are the same.
+
+```dart
+SharedPreferencesWrapper.addListener('key', () {
+  print("Preference with key changed!");
+});
+```
+
+Removing a listener from **addListener()**
+```dart
+// define a function to handle the preference change
+void handleChangeListener() {
+  print("Listener triggered!");
+}
+
+@override
+  void initState() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      SharedPreferencesWrapper.removeListener('key', handleChangeListener);
+    });
+}
+```
+
+2) Using **addObserver()** method
+```dart
+// Function to observe changes
+Function(String, dynamic) handleObserverChanges = (String key, dynamic newValue) {
+  print("Observer triggered with data: key=$key value=$newValue");
+};
+
+@override
+  void initState() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        // Add an observer
+      SharedPreferencesWrapper.addObserver('observer', handleObserverChanges);
+    });
+}
+```
+
+Removing listeners from **addObserver()**
+```dart
+SharedPreferencesWrapper.removeObserver('observer', handleObserverChanges);
+```
+
+## Shared Preferences Wrapper Encryption (AES)
+- **setEncryptionKey(String key)**: Sets an encryption key to encrypt and decrypt sensitive data stored in shared preferences. **CURRENTLY ONLY STRINGS ARE SUPPORTED.** This means that when the key is set, it will be applied to only String data types when adding and retrieving strings.
+```dart
+// set an encryption key, this has to be 16/24/32 character long
+// NOTE: you must set the encryption key before storing strings in shared preferences
+// This will apply to all string data types stored if the encryption key is set
+SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
+
+// Once the key is set, whenever a string is stored in shared preferences the encryption is applied
+await SharedPreferencesWrapper.addString('key', 'value');
+
+// To remove encryption, simply remove SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
+```
+
+## Grouping Preferences
+Organize preferences based on specific groups or categories
+
+```dart
+// Add preferences to a specific group
+await SharedPreferencesWrapper.addToGroup('UserSettings', 'username', 'JohnDoe');
+await SharedPreferencesWrapper.addToGroup('UserSettings', 'email', 'john@example.com');
+
+await SharedPreferencesWrapper.addToGroup('AppSettings', 'darkMode', true);
+await SharedPreferencesWrapper.addToGroup('AppSettings', 'language', 'English');
+
+// Retrieve preferences from a specific group
+Map<String, dynamic>? userSettings = await SharedPreferencesWrapper.getGroup('UserSettings');
+Map<String, dynamic>? appSettings = await SharedPreferencesWrapper.getGroup('AppSettings');
+print('userSettings: $userSettings');
+print('appSettings: $appSettings');
+```
+
 Please refer to the example code provided in the package repository for more usage examples.
 
 ## Methods
-### Shared Preferences Wrapper
 
 - **addString(String key, String value)**: Adds a string to shared preferences.
 - **addInt(String key, int value)**: Adds an int to shared preferences.
@@ -119,11 +226,12 @@ Please refer to the example code provided in the package repository for more usa
 - **isSharedPreferencesEmpty()**: Checks if shared preferences is empty.
 - **addListener(String key, void Function() listener)**: Adds listeners for shared preference changes.
 - **removeListener(String key, VoidCallback listener)**: Removes listeners for shared preference changes.
+- **addObserver(String key, Function(String, dynamic) callback)**: Add observers for shared preference changes.
+- **removeObserver(String key, Function(String, dynamic) callback)**: Remove observers for shared preference changes.
 - **addBatch(Map<String, dynamic> data)**: Add multiple key-value pairs in a single batch operation.
 - **updateBatch(Map<String, dynamic> data)**: Update multiple key-value pairs in a single batch.
-
-### Shared Preferences Wrapper Encryption
-- **setEncryptionKey(String key)**: Sets an encryption key to encrypt and decrypt sensitive data stored in shared preferences. **CURRENTLY ONLY STRINGS ARE SUPPORTED.** This means that when the key is set, it will be applied to only String data types when adding and retrieving strings.
+- **addToGroup(String groupName, String key, dynamic value)** Organize preferences based on specific groups or categories.
+- **getGroup(String groupName)** Get preferences based on specific groups or categories.
 
 ## Contributing
 

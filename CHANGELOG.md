@@ -1,3 +1,14 @@
+## 0.0.3
+- Add or remove observers for shared preference changes.
+- Organize preferences based on specific groups or categories
+- Get preferences based on specific groups or categories
+- Setting default values that should be returned instead of null for **string, int, bool, double** data types
+
+### Added
+- Encrypt/Decrypt sensitive data stored in shared preferences
+- Add or update multiple key-value pairs in a single batch operation
+- Add or remove listeners for shared preference changes
+
 ## 0.0.2
 
 ### Added

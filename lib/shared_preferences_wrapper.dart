@@ -7,6 +7,8 @@ import 'dart:ui';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:encrypt/encrypt.dart';
 
+typedef PreferenceChangeListener = void Function(String key);
+
 class SharedPreferencesWrapperEncryption {
   static String? _encryptionKey;
 
@@ -38,7 +40,9 @@ class SharedPreferencesWrapperEncryption {
 
 class SharedPreferencesWrapper {
   static Map<String, List<VoidCallback>> _listeners = {};
+ 
   final String? encryptionKey;
+  static Map<String, List<Function(String, dynamic)>> _observers = {};
 
   SharedPreferencesWrapper._(this.encryptionKey);
 
@@ -93,7 +97,7 @@ class SharedPreferencesWrapper {
   /// Adds a string value to shared preferences with the given [key].
   static addString(String key, String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    String newValue = value;
     var instance = SharedPreferencesWrapper.createInstance();
     String? encryptionKey = instance._getEncryptionKey();
 
@@ -103,7 +107,9 @@ class SharedPreferencesWrapper {
     }
 
     prefs.setString(key, value);
+
     _notifyListeners(key);
+    _notifyObservers(key, newValue);
   }
 
   /// Adds an integer value to shared preferences with the given [key].
@@ -111,6 +117,7 @@ class SharedPreferencesWrapper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt(key, value);
     _notifyListeners(key);
+    _notifyObservers(key, value);
   }
 
   /// Adds a double value to shared preferences with the given [key].
@@ -118,6 +125,7 @@ class SharedPreferencesWrapper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setDouble(key, value);
     _notifyListeners(key);
+    _notifyObservers(key, value);
   }
 
   /// Adds a boolean value to shared preferences with the given [key].
@@ -125,6 +133,7 @@ class SharedPreferencesWrapper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool(key, value);
     _notifyListeners(key);
+    _notifyObservers(key, value);
   }
 
   /// Adds a list of strings to shared preferences with the given [key].
@@ -133,6 +142,7 @@ class SharedPreferencesWrapper {
     String jsonString = jsonEncode(myList);
     prefs.setString(key, jsonString);
     _notifyListeners(key);
+    _notifyObservers(key, myList);
   }
 
   /// Adds a map to shared preferences with the given [key].
@@ -141,45 +151,54 @@ class SharedPreferencesWrapper {
     final jsonString = json.encode(value);
     prefs.setString(key, jsonString);
     _notifyListeners(key);
+    _notifyObservers(key, value);
   }
 
   /// Retrieves a string value from shared preferences using the given [key].
-  static Future<String?> getString(String key) async {
+  static Future<String?> getString(String key, {String? defaultValue}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //Return string
     String? stringValue = prefs.getString(key);
 
     var instance = SharedPreferencesWrapper.createInstance();
     String? encryptionKey = instance._getEncryptionKey();
-    if (encryptionKey != null) {
-      final decrypted = instance._decryptValue(stringValue!);
+    if (encryptionKey != null && stringValue != null) {
+      final decrypted = instance._decryptValue(stringValue);
       stringValue = decrypted;
     }
+
+    stringValue = _setDefaultValue(stringValue, defaultValue);
 
     return stringValue;
   }
 
   /// Retrieves a boolean value from shared preferences using the given [key].
-  static getBool(String key) async {
+  static getBool(String key, {bool? defaultValue}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //Return bool
     bool? boolValue = prefs.getBool(key);
+    boolValue = _setDefaultValue(boolValue, defaultValue);
+
     return boolValue;
   }
 
   /// Retrieves an integer value from shared preferences using the given [key].
-  static getInt(String key) async {
+  static getInt(String key, {int? defaultValue}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //Return int
     int? intValue = prefs.getInt(key);
+    intValue = _setDefaultValue(intValue, defaultValue);
+
     return intValue;
   }
 
   /// Retrieves a double value from shared preferences using the given [key].
-  static getDouble(String key) async {
+  static getDouble(String key, {double? defaultValue}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //Return double
     double? doubleValue = prefs.getDouble(key);
+    doubleValue = _setDefaultValue(doubleValue, defaultValue);
+
     return doubleValue;
   }
 
@@ -407,5 +426,55 @@ class SharedPreferencesWrapper {
         }
       }
     });
+  }
+
+  static dynamic _setDefaultValue(dynamic value, dynamic defaultValue) {
+    if (value == null) {
+      if (defaultValue != null) {
+        value = defaultValue;
+      }
+    }
+
+    return value;
+  }
+
+  // Method to add preferences to a specific category/group
+  static Future<void> addToGroup(
+      String groupName, String key, dynamic value) async {
+    final groupExists = await getMap(groupName);
+    if (groupExists == null) {
+      await addMap(groupName, {});
+    }
+    await updateMap(groupName, {key: value});
+  }
+
+  // Method to retrieve preferences from a specific category/group
+  static Future<Map<String, dynamic>?> getGroup(String groupName) {
+    final map = getMap(groupName);
+    return map;
+  }
+
+  // Method to add an observer
+  static void addObserver(String key, Function(String, dynamic) callback) {
+    if (!_observers.containsKey(key)) {
+      _observers[key] = [];
+    }
+    _observers[key]!.add(callback);
+  }
+
+  // Method to remove an observer
+  static void removeObserver(String key, Function(String, dynamic) callback) {
+    if (_observers.containsKey(key)) {
+      _observers[key]!.remove(callback);
+    }
+  }
+
+  // Method to notify the observer
+  static void _notifyObservers(String key, dynamic value) {
+    if (_observers.containsKey(key)) {
+      _observers[key]!.forEach((observer) {
+        observer(key, value);
+      });
+    }
   }
 }

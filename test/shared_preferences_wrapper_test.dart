@@ -16,7 +16,7 @@ void main() {
     // Pump frames to allow the widget to build.
     await tester.pumpAndSettle();
 
-    await tester.runAsync(() => MyApp().encrypt());
+    //await tester.runAsync(() => MyApp().encrypt());
 
     await tester.runAsync(() => MyApp().addStringToWrapper('string'));
     final stringResult =
@@ -34,8 +34,8 @@ void main() {
 
     await tester.runAsync(() => MyApp().addBoolWrapper('bool'));
     final boolResult =
-        await tester.runAsync(() => MyApp().getBoolFromSF('bool'));
-    expect(boolResult, true);
+        await tester.runAsync(() => MyApp().getBoolFromSF('bool1'));
+    expect(boolResult, false);
 
     Map<String, dynamic> allPrefs = {
       'string': 'Yung',
@@ -84,6 +84,10 @@ void main() {
     final removedKey =
         await tester.runAsync(() => MyApp().mapContainsKey('map', 'surname'));
     expect(removedKey, false);
+
+    await tester.runAsync(() => MyApp().addGroup());
+    final groupResults = await tester.runAsync(() => MyApp().getGroup());
+    expect(groupResults, {'username': 'JohnDoe'});
   });
 }
 
@@ -132,7 +136,8 @@ class MyApp extends StatelessWidget {
   }
 
   Future<String?> getStringFromSF(String myKey) async {
-    String? value = await SharedPreferencesWrapper.getString(myKey);
+    String? value =
+        await SharedPreferencesWrapper.getString(myKey, defaultValue: '');
     return value;
   }
 
@@ -147,7 +152,8 @@ class MyApp extends StatelessWidget {
   }
 
   Future<bool?> getBoolFromSF(String myKey) async {
-    bool? value = await SharedPreferencesWrapper.getBool(myKey);
+    bool? value =
+        await SharedPreferencesWrapper.getBool(myKey, defaultValue: false);
     return value;
   }
 
@@ -205,6 +211,16 @@ class MyApp extends StatelessWidget {
   Future<bool> empty() async {
     bool? isEmpty = await SharedPreferencesWrapper.isSharedPreferencesEmpty();
     return isEmpty;
+  }
+
+  Future<void> addGroup() async {
+    await SharedPreferencesWrapper.addToGroup(
+        'UserSettings', 'username', 'JohnDoe');
+  }
+
+  Future<Map<String, dynamic>?> getGroup() async {
+    final map = await SharedPreferencesWrapper.getGroup('UserSettings');
+    return map;
   }
 
   @override

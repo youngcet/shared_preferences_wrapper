@@ -54,27 +54,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String text = '';
 
+  void handleChangeListener() {
+    print("Listener triggered!");
+  }
+
+  // Function to observe changes
+  Function(String, dynamic) handleObserverChanges =
+      (String key, dynamic newValue) {
+    print("Observer triggered with data: key=$key value=$newValue");
+  };
+
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       // set an encryption key, this has to be 16/24/32 character long
-      // CURRENTLY ONLY STRINGS ARE SUPPORTED
+      // CURRENTLY ONLY STRING DATA TYPES ARE SUPPORTED
       SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
 
       // Registering Listeners with callback function for when a shared preference changes
-      SharedPreferencesWrapper.addListener('key', () async {
-        final updatedString = await SharedPreferencesWrapper.getString('key');
-        setState(() {
-          text += '\nUpdated String Value: $updatedString';
-        });
-      });
-
-      SharedPreferencesWrapper.addListener('int', () async {
-        final updatedInt = await SharedPreferencesWrapper.getInt('int');
-        setState(() {
-          text += '\nUpdated Int Value: $updatedInt';
-        });
-      });
+      SharedPreferencesWrapper.addListener('key', handleChangeListener);
 
       // to trigger registered listeners callback
       Future.delayed(const Duration(seconds: 10), () {
@@ -82,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
         SharedPreferencesWrapper.addInt('int', 200);
       });
 
-      // storing values
-      // note: refer to the documentation for storing other data types
+      // // storing values
+      // // note: refer to the documentation for storing other data types
       await SharedPreferencesWrapper.addString('key', 'value');
       await SharedPreferencesWrapper.addInt('int', 100);
 
@@ -93,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
         text += '\nString value stored: $stringResult';
       });
 
-      // storing lists
+      // // storing lists
       SharedPreferencesWrapper.addStringList('listkey', myStringList);
       // retrieving a list
       List<String> value =
@@ -103,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
         text += '\nList value stored: $value';
       });
 
-      // storing maps
+      // // storing maps
       SharedPreferencesWrapper.addMap('mapkey', myMap);
       // retrieving a map
       Map<String, dynamic>? map =
@@ -113,9 +111,9 @@ class _MyHomePageState extends State<MyHomePage> {
         text += '\nStored Map values: $map';
       });
 
-      // note: refer to the documentation for storing other data types
+      // // note: refer to the documentation for storing other data types
 
-      // Adding multiple preferences at once
+      // // Adding multiple preferences at once
       Map<String, dynamic> dataToAdd = {
         'key1': 'value1',
         'key2': 42,
@@ -125,8 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // Add more key-value pairs as needed
       };
       await SharedPreferencesWrapper.addBatch(dataToAdd);
-      // access the batch data normally as you would,
-      //take note of the data type stored to call the correct corresponding method
+      // // access the batch data normally as you would,
+      // //take note of the data type stored to call the correct corresponding method
       bool boolValue = await SharedPreferencesWrapper.getBool('key3');
       int intValue = await SharedPreferencesWrapper.getInt('key2');
 
@@ -134,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
         text += '\n\nBatch Data: bool = $boolValue, int: = $intValue\n\n';
       });
 
-      // Updating existing preferences in batch
+      // // Updating existing preferences in batch
       Map<String, dynamic> dataToUpdate = {
         'key3': false,
         'key2': 100,
@@ -147,6 +145,34 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         text += 'Updated Batch Data: bool = $boolValue1, int: = $intValue1\n\n';
       });
+
+      // // Add preferences to a specific group
+      await SharedPreferencesWrapper.addToGroup(
+          'UserSettings', 'username', 'JohnDoe');
+      await SharedPreferencesWrapper.addToGroup(
+          'UserSettings', 'email', 'john@example.com');
+
+      await SharedPreferencesWrapper.addToGroup(
+          'AppSettings', 'darkMode', true);
+      await SharedPreferencesWrapper.addToGroup(
+          'AppSettings', 'language', 'English');
+
+      // // Retrieve preferences from a specific group
+      Map<String, dynamic>? userSettings =
+          await SharedPreferencesWrapper.getGroup('UserSettings');
+      Map<String, dynamic>? appSettings =
+          await SharedPreferencesWrapper.getGroup('AppSettings');
+      print('userSettings: $userSettings');
+      print('appSettings: $appSettings');
+
+      // Add an observer
+      SharedPreferencesWrapper.addObserver('observer', handleObserverChanges);
+      await SharedPreferencesWrapper.addString('observer', 'value1');
+
+      // Remove an observer (when no longer needed)
+      SharedPreferencesWrapper.removeObserver(
+          'observer', handleObserverChanges);
+      await SharedPreferencesWrapper.addString('observer', 'value2');
     });
   }
 
