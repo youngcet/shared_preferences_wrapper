@@ -87,7 +87,7 @@ if (isEmpty){
 await SharedPreferencesWrapper.removeAtKey('key');
 ```
 
-### Getting all preferences stored
+### Retrieving all preferences stored
 This returns all preferences stored
 ```dart
 Map<String, dynamic> allPreferences = await SharedPreferencesWrapper.getAllSharedPreferences();
@@ -117,7 +117,7 @@ print('value'); // output: Yung
 ```
 
 ### Updating a map
-You can update an existing map by adding new values to it
+You can update an existing map by adding new items to it
 ```dart
 await SharedPreferencesWrapper.updateMap('mapKey', {'surname': 'Cet'});
 ```
