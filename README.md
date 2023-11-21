@@ -54,6 +54,106 @@ bool? value = await SharedPreferencesWrapper.getBool('key');
 List<String> value = await SharedPreferencesWrapper.getStringList('key');
 Map<String, dynamic>? value = await SharedPreferencesWrapper.getMap('key');
 ```
+
+### Checking if a key exists
+Checks if a key exists in shared preferences
+```dart
+bool? exists = await SharedPreferencesWrapper.keyExists('key');
+if (exists){
+  print('key exists');
+}else{
+  print('key does not exist');
+}
+```
+
+### Clearing all preferences
+This clears all the stored shared preferences
+```dart
+await SharedPreferencesWrapper.clearAll();
+```
+
+### Checking if shared preferences are empty
+```dart
+bool? isEmpty = await SharedPreferencesWrapper.isSharedPreferencesEmpty();
+if (isEmpty){
+  print('shared preferences are not empty');
+}else{
+  print('shared preferences are empty');
+}
+```
+
+### Removing a key
+```dart
+await SharedPreferencesWrapper.removeAtKey('key');
+```
+
+### Getting all preferences stored
+This returns all preferences stored
+```dart
+Map<String, dynamic> allPreferences = await SharedPreferencesWrapper.getAllSharedPreferences();
+print(allPreferences);
+```
+
+## Working with Maps
+### Storing a map
+```dart
+await SharedPreferencesWrapper.addMap('mapKey', {
+      'name': 'Yung',
+      'age': 30,
+      'isStudent': true,
+    });
+```
+
+### Retrieving a map
+```dart
+Map<String, dynamic>? value = await SharedPreferencesWrapper.getMap('mapKey');
+print(value);
+```
+
+### Retrieve a value from the map on a specific key
+```dart
+dynamic value = await SharedPreferencesWrapper.getMapKey('mapKey', 'name');
+print('value'); // output: Yung
+```
+
+### Updating a map
+You can update an existing map by adding new values to it
+```dart
+await SharedPreferencesWrapper.updateMap('mapKey', {'surname': 'Cet'});
+```
+
+The updated map now looks like this
+```dart
+{
+  'name': 'Yung',
+  'age': 30,
+  'isStudent': true,
+  'surname': 'Cet'  // new item added
+}
+```
+
+### Updating a value inside a map with a specific key
+You can update a value inside a map for a specific key
+```dart
+// this updates the age value to 40
+await SharedPreferencesWrapper.updateMapKey('mapKey', 'age', 40);
+```
+
+### Checking if a key inside a map exists
+```dart
+final value = await SharedPreferencesWrapper.mapContainsKey('mapKey', 'mapKeyToCheck');
+if (value){
+  print('key exists');
+}else{
+  print('key does not exist');
+}
+```
+
+### Removing a key inside a map
+```dart
+await SharedPreferencesWrapper.removeMapKey('mapKey', 'mapKeyToRemove');
+```
+
 ## Setting default values
 You can set default values that should be returned instead of null for **string, int, bool, double** data types.
 
