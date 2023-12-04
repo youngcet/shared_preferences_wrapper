@@ -20,19 +20,64 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 - Add or remove listeners for shared preference changes
 - Organize preferences based on specific groups or categories
 
+## Supported Data Types
+- **String**
+- **int**
+- **double**
+- **bool**
+- **String List**
+- **Map**
+
 ## Installation
 
 To use this package, add it to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shared_preferences_wrapper: ^0.0.3
+  shared_preferences_wrapper: ^0.0.3+1
 ```
 
 ## Usage
 
 Here's how to use the `SharedPreferencesWrapper` to work with shared preferences:
 
+### Using single functions to set and retrieve data
+```dart
+// set a string value
+await SharedPreferencesWrapper.setValue('name', 'Yung');
+// retrieving a value by key
+final val = await SharedPreferencesWrapper.getValue('name');
+print(val); // output Yung
+
+// setting different data types
+// set an int value
+await SharedPreferencesWrapper.setValue('qty', 10);
+final qty = await SharedPreferencesWrapper.getValue('qty');
+
+// set a double value
+await SharedPreferencesWrapper.setValue('amount', 4.5);
+final amount = await SharedPreferencesWrapper.getValue('amount');
+
+// set a bool value
+await SharedPreferencesWrapper.setValue('processed', true);
+final processed = await SharedPreferencesWrapper.getValue('processed');
+
+// set a string list
+await SharedPreferencesWrapper.setValue('items', ['item 1', 'item 2']);
+final items = await SharedPreferencesWrapper.getValue('items');
+
+// set a map
+await SharedPreferencesWrapper.setValue('user', {'name': 'Yung', 'lname': 'Cet'});
+final user = await SharedPreferencesWrapper.getValue('user');
+```
+
+#### Setting a default value in getValue()
+You can specify a default value for when a key does not exist in shared preferences instead of returning null. This can be set of any of the supported data types above.
+```dart
+final name = await SharedPreferencesWrapper.getValue('name', defaultValue: '');
+```
+
+### Using specific functions based on data type
 ```dart
 import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
 
@@ -53,6 +98,23 @@ double? value = await SharedPreferencesWrapper.getDouble('key');
 bool? value = await SharedPreferencesWrapper.getBool('key');
 List<String> value = await SharedPreferencesWrapper.getStringList('key');
 Map<String, dynamic>? value = await SharedPreferencesWrapper.getMap('key');
+```
+
+## Setting default values
+You can set default values that should be returned instead of null for **string, int, bool, double** data types.
+
+```dart
+// returns empty string instead of null
+String? stringValue = await SharedPreferencesWrapper.getString('myKey', defaultValue: '');
+
+// returns 0 instead of null
+int? intValue = await SharedPreferencesWrapper.getInt('myKey', defaultValue: 0);
+
+// returns 0.0 instead of null
+double? doubleValue = await SharedPreferencesWrapper.getDouble('myKey', defaultValue: 0.0);
+
+// returns false instead of null
+bool? boolValue = await SharedPreferencesWrapper.getBool('myKey', defaultValue: false);
 ```
 
 ### Checking if a key exists
@@ -152,23 +214,6 @@ if (value){
 ### Removing a key inside a map
 ```dart
 await SharedPreferencesWrapper.removeMapKey('mapKey', 'mapKeyToRemove');
-```
-
-## Setting default values
-You can set default values that should be returned instead of null for **string, int, bool, double** data types.
-
-```dart
-// returns empty string instead of null
-String? stringValue = await SharedPreferencesWrapper.getString(myKey, defaultValue: '');
-
-// returns 0 instead of null
-int? intValue = await SharedPreferencesWrapper.getInt(myKey, defaultValue: 0);
-
-// returns 0.0 instead of null
-double? doubleValue = await SharedPreferencesWrapper.getDouble(myKey, defaultValue: 0.0);
-
-// returns false instead of null
-bool? boolValue = await SharedPreferencesWrapper.getBool(myKey, defaultValue: false);
 ```
 
 ## Single Batch Operation
@@ -332,6 +377,8 @@ Please refer to the example code provided in the package repository for more usa
 - **updateBatch(Map<String, dynamic> data)**: Update multiple key-value pairs in a single batch.
 - **addToGroup(String groupName, String key, dynamic value)** Organize preferences based on specific groups or categories.
 - **getGroup(String groupName)** Get preferences based on specific groups or categories.
+- **setValue(String key, dynamic value)** Sets a value in SharedPreferences.
+- **getValue(String key, {dynamic defaultValue})** Retrieves a value from SharedPreferences.
 
 ## Contributing
 

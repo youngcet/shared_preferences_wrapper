@@ -40,7 +40,7 @@ class SharedPreferencesWrapperEncryption {
 
 class SharedPreferencesWrapper {
   static Map<String, List<VoidCallback>> _listeners = {};
- 
+
   final String? encryptionKey;
   static Map<String, List<Function(String, dynamic)>> _observers = {};
 
@@ -476,5 +476,65 @@ class SharedPreferencesWrapper {
         observer(key, value);
       });
     }
+  }
+
+  /// Sets a value in SharedPreferences identified by [key] based on its data type [value].
+  ///
+  /// If [value] is of type [String], it sets the string value using [addString].
+  /// If [value] is of type [int], it sets the integer value using [addInt].
+  /// If [value] is of type [double], it sets the double value using [addDouble].
+  /// If [value] is of type [bool], it sets the boolean value using [addBool].
+  /// If [value] is of type [List<String>], it sets the list of strings using [addStringList].
+  /// If [value] is of type [Map<String, dynamic>], it sets the map using [addMap].
+  ///
+  /// The [key] represents the identifier for the stored value.
+  static setValue(String key, dynamic value) async {
+    if (value is String) {
+      await addString(key, value);
+    } else if (value is int) {
+      await addInt(key, value);
+    } else if (value is double) {
+      await addDouble(key, value);
+    } else if (value is bool) {
+      await addBool(key, value);
+    } else if (value is List<String>) {
+      await addStringList(key, value);
+    } else if (value is Map<String, dynamic>) {
+      await addMap(key, value);
+    }
+  }
+
+  /// Retrieves a value from SharedPreferences identified by [key].
+  ///
+  /// Returns the stored value corresponding to the [key]. If [defaultValue] is provided
+  /// and no value exists for the [key], it returns the [defaultValue].
+  ///
+  /// The [key] represents the identifier for the stored value.
+  /// The optional parameter [defaultValue] specifies the value to return if the [key] is not found.
+  static Future<dynamic> getValue(String key, {dynamic defaultValue}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    var value = prefs.get(key);
+    if (value is String) {
+      if (value.contains('[') && value.contains(']')) {
+        List<dynamic> result = jsonDecode(value);
+        List<String> resultList = result.map((e) => e.toString()).toList();
+        value = resultList;
+      } else if (value.contains('{') && value.contains('}')) {
+        Map<String, dynamic> jsonMap = jsonDecode(value);
+        value = jsonMap;
+      } else {
+        var instance = SharedPreferencesWrapper.createInstance();
+        String? encryptionKey = instance._getEncryptionKey();
+        if (encryptionKey != null) {
+          final decrypted = instance._decryptValue(value);
+          value = decrypted;
+        }
+      }
+    }
+
+    value = _setDefaultValue(value, defaultValue);
+
+    return value;
   }
 }

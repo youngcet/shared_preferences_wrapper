@@ -173,6 +173,10 @@ class _MyHomePageState extends State<MyHomePage> {
       SharedPreferencesWrapper.removeObserver(
           'observer', handleObserverChanges);
       await SharedPreferencesWrapper.addString('observer', 'value2');
+
+      await SharedPreferencesWrapper.setValue('usr', true);
+      final val = await SharedPreferencesWrapper.getValue('usr');
+      print('val: $val');
     });
   }
 

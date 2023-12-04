@@ -1,3 +1,7 @@
+## 0.0.3+1
+- added setValue() to allow saving data to SharedPreferences
+- added getValue() to retrieve values from SharedPreferences
+
 ## 0.0.3
 - Add or remove observers for shared preference changes.
 - Organize preferences based on specific groups or categories

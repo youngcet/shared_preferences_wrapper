@@ -54,7 +54,7 @@ void main() {
     final isEmpty = await tester.runAsync(() => MyApp().empty());
     expect(isEmpty, true);
 
-    tester.runAsync(() => MyApp().addStringList('list'));
+    await tester.runAsync(() => MyApp().addStringList('list'));
     final getStringList =
         await tester.runAsync(() => MyApp().getStringList('list'));
     expect(getStringList, ['item1', 'item2', 'item3']);
@@ -88,6 +88,36 @@ void main() {
     await tester.runAsync(() => MyApp().addGroup());
     final groupResults = await tester.runAsync(() => MyApp().getGroup());
     expect(groupResults, {'username': 'JohnDoe'});
+
+    await tester.runAsync(() => MyApp().set('str', 'yung'));
+    final str = await tester.runAsync(() => MyApp().get('str'));
+    expect(str, 'yung');
+
+    await tester.runAsync(() => MyApp().set('intVal', 1));
+    final intVal = await tester.runAsync(() => MyApp().get('intVal'));
+    expect(intVal, 1);
+
+    await tester.runAsync(() => MyApp().set('boolVal', true));
+    final boolVal = await tester.runAsync(() => MyApp().get('boolVal'));
+    expect(boolVal, true);
+
+    await tester.runAsync(() => MyApp().set('doubleVal', 1.0));
+    final doubleVal = await tester.runAsync(() => MyApp().get('doubleVal'));
+    expect(doubleVal, 1.0);
+
+    await tester.runAsync(() => MyApp().set('listStringVal', ['1', '2', '3']));
+    final listStringVal =
+        await tester.runAsync(() => MyApp().get('listStringVal'));
+    expect(listStringVal, ['1', '2', '3']);
+
+    await tester.runAsync(
+        () => MyApp().set('mapVal', {'name': 'Yung', 'lname': 'Cet'}));
+    final mapVal = await tester.runAsync(() => MyApp().get('mapVal'));
+    expect(mapVal, {'name': 'Yung', 'lname': 'Cet'});
+
+    final defaultVal =
+        await tester.runAsync(() => MyApp().get('mapVal1', defaultValue: ''));
+    expect(defaultVal, '');
   });
 }
 
@@ -221,6 +251,16 @@ class MyApp extends StatelessWidget {
   Future<Map<String, dynamic>?> getGroup() async {
     final map = await SharedPreferencesWrapper.getGroup('UserSettings');
     return map;
+  }
+
+  Future<void> set(String key, dynamic value) async {
+    await SharedPreferencesWrapper.setValue(key, value);
+  }
+
+  Future<dynamic> get(String key, {dynamic defaultValue}) async {
+    dynamic val = await SharedPreferencesWrapper.getValue(key,
+        defaultValue: defaultValue);
+    return val;
   }
 
   @override
