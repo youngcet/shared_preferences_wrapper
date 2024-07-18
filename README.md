@@ -15,11 +15,12 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 - Remove specific keys or clear all data from shared preferences.
 - Retrieve all shared preferences as a map.
 - Check if shared preferences are empty.
-- Encrypt/Decrypt sensitive data stored in shared preferences
-- Add or update multiple key-value pairs in a single batch operation
-- Add or remove listeners for shared preference changes
-- Organize preferences based on specific groups or categories
+- Encrypt/Decrypt sensitive data stored in shared preferences.
+- Add or update multiple key-value pairs in a single batch operation.
+- Add or remove listeners for shared preference changes.
+- Organize preferences based on specific groups or categories.
 - Namespace Support: Implement namespaces for easier management of different sets of preferences.
+- A fluent API for chaining multiple operations in a more readable manner.
 
 ## Supported Data Types
 - **String**
