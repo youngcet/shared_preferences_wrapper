@@ -370,7 +370,7 @@ There are two types of encryption to choose from:
 - **Salsa20**
 
 ### <span style="color:red">DEPRICATED</span>
-This method of setting the encryption has been depricated and is no longer supported. Please see refer to the sections below this section for a new way of implementing encryption.
+This method of setting the encryption has been depricated and is no longer supported. Please refer to the sections below this section for a new way of implementing encryption.
 
 - **setEncryptionKey(String key)**: Sets an encryption key to encrypt and decrypt sensitive data stored in shared preferences. **CURRENTLY ONLY STRINGS ARE SUPPORTED.** This means that when the key is set, it will be applied to only String data types when adding and retrieving strings.
 ```dart
@@ -493,6 +493,10 @@ Please refer to the example code provided in the package repository for more usa
 - **getGroup(String groupName)** Get preferences based on specific groups or categories.
 - **setValue(String key, dynamic value)** Sets a value in SharedPreferences.
 - **getValue(String key, {dynamic defaultValue})** Retrieves a value from SharedPreferences.
+- **getBuilder()** Chains methods together.
+- **createNamespace(String namespace)** Create a namespace.
+- **clearNamespace()** Clears the namespace.
+- **removeWhereKeyStartsWith(String keyPrefix)** Removes preferences where key starts with the given prefix.
 
 ## Contributing
 
