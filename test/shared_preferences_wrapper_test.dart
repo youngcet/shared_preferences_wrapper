@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences_wrapper/concrete_namespaced_wrapper.dart';
+import 'package:shared_preferences_wrapper/encryption/aes_encryption.dart';
+import 'package:shared_preferences_wrapper/encryption/salsa20_encryption.dart';
 import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
 
 import 'setup_shared_preferences.dart';
@@ -118,6 +121,26 @@ void main() {
     final defaultVal =
         await tester.runAsync(() => MyApp().get('mapVal1', defaultValue: ''));
     expect(defaultVal, '');
+
+    await tester.runAsync(() => MyApp().builder());
+    final builder = await tester.runAsync(() => MyApp().get('builder_bool'));
+    expect(builder, true);
+
+    final prefs = await tester.runAsync(() => MyApp().namespace('account'));
+    final account =
+        await tester.runAsync(() => MyApp().getNamespace(prefs!, 'name'));
+    expect(account, 'John Doe');
+
+    await tester.runAsync(() => MyApp().deleteNamespace(prefs!));
+    final checkNamespace =
+        await tester.runAsync(() => MyApp().getNamespace(prefs!, 'name'));
+    expect(checkNamespace, null);
+
+    final aespin = await tester.runAsync(() => MyApp().aesEncryption());
+    expect(aespin, '123456');
+
+    final salsapin = await tester.runAsync(() => MyApp().salsa20Encryption());
+    expect(salsapin, '123456');
   });
 }
 
@@ -125,6 +148,8 @@ class MyApp extends StatelessWidget {
   // values
   final String stringValue = 'Yung';
   final String encryptionKey = 'my16CharacterKey';
+  final String pinKey = 'pin';
+  final String pin = '123456';
   final int intValue = 1;
   final double doubleValue = 2.0;
   final bool boolValue = true;
@@ -137,9 +162,9 @@ class MyApp extends StatelessWidget {
 
   MyApp({super.key});
 
-  Future<void> encrypt() async {
-    SharedPreferencesWrapperEncryption.setEncryptionKey(encryptionKey);
-  }
+  // Future<void> encrypt() async {
+  //   SharedPreferencesWrapperEncryption.setEncryptionKey(encryptionKey);
+  // }
 
   Future<void> addStringToWrapper(String myKey) async {
     await SharedPreferencesWrapper.addString(myKey, stringValue);
@@ -261,6 +286,57 @@ class MyApp extends StatelessWidget {
     dynamic val = await SharedPreferencesWrapper.getValue(key,
         defaultValue: defaultValue);
     return val;
+  }
+
+  Future<void> builder() async {
+    await SharedPreferencesWrapper.getBuilder().then((builder) => {
+          builder
+              .addBool('builder_bool', true)
+              .addDouble('builder_double', 10.0)
+              .addString('builder_str', 'str value')
+              .addInt('builder_int', 100)
+              .addMap('builder_map', {
+            'name': 'Yung',
+            'lname': 'Cet'
+          }).addStringList('builder_list', ['item 1', 'item 2'])
+        });
+  }
+
+  Future<ConcreteNamespacedPrefs> namespace(String namespace) async {
+    final userPrefs = SharedPreferencesWrapper.createNamespace('user');
+    await userPrefs.setValue('name', 'John Doe');
+    return userPrefs;
+  }
+
+  Future<String?> getNamespace(
+      ConcreteNamespacedPrefs prefs, String key) async {
+    String? userName = await prefs.getValue('name');
+
+    return userName;
+  }
+
+  Future<void> deleteNamespace(ConcreteNamespacedPrefs prefs) async {
+    await prefs.clearNamespace();
+  }
+
+  Future<String?> aesEncryption() async {
+    await SharedPreferencesWrapper.addString(pinKey, pin,
+        aesEncryption: AESEncryption(encryptionKey: encryptionKey));
+
+    String? mypin = await SharedPreferencesWrapper.getString(pinKey,
+        aesDecryption: AESDecryption(encryptionKey: encryptionKey));
+
+    return mypin;
+  }
+
+  Future<String?> salsa20Encryption() async {
+    await SharedPreferencesWrapper.addString(pinKey, pin,
+        salsa20Encryption: Salsa20Encryption(encryptionKey: encryptionKey));
+
+    String? mypin = await SharedPreferencesWrapper.getString(pinKey,
+        salsa20Decryption: Salsa20Decryption(encryptionKey: encryptionKey));
+
+    return mypin;
   }
 
   @override

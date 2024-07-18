@@ -5,106 +5,48 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:encrypt/encrypt.dart';
+import 'package:shared_preferences_wrapper/concrete_namespaced_wrapper.dart';
+import 'package:shared_preferences_wrapper/concrete_shared_prefs_wrapper_builder.dart';
+import 'package:shared_preferences_wrapper/shared_preferences_wrapper_encryption.dart';
 
 typedef PreferenceChangeListener = void Function(String key);
 
-class SharedPreferencesWrapperEncryption {
-  static String? _encryptionKey;
-
-  /// Sets the encryption key for SharedPreferencesWrapper.
-  ///
-  /// The [key] parameter represents the encryption key to be set.
-  /// It should have a character length of 16, 24, or 32 for AES encryption.
-  ///
-  /// Throws an [Exception] if the [key] length is not 16, 24, or 32 characters.
-  static void setEncryptionKey(String key) {
-    final validKeyLengths = [16, 24, 32];
-    int keyLength = key.length;
-
-    if (!validKeyLengths.contains(keyLength)) {
-      throw Exception(
-          "[SharedPreferencesWrapperEncryption] key length should be 16/24/32 character length.");
-    } else {
-      _encryptionKey = key;
-    }
-  }
-
-  /// Retrieves the encryption key set for SharedPreferencesWrapper.
-  ///
-  /// Returns the encryption key if set, otherwise returns null.
-  static String? _getEncryptionKey() {
-    return _encryptionKey;
-  }
-}
-
 class SharedPreferencesWrapper {
-  static Map<String, List<VoidCallback>> _listeners = {};
+  static final Map<String, List<VoidCallback>> _listeners = {};
+  static final Map<String, List<Function(String, dynamic)>> _observers = {};
 
-  final String? encryptionKey;
-  static Map<String, List<Function(String, dynamic)>> _observers = {};
-
-  SharedPreferencesWrapper._(this.encryptionKey);
+  SharedPreferencesWrapper();
 
   static SharedPreferencesWrapper createInstance() {
-    String? encryptionKey =
-        SharedPreferencesWrapperEncryption._getEncryptionKey();
-    return SharedPreferencesWrapper._(encryptionKey);
-  }
-
-  String? _getEncryptionKey() {
-    return encryptionKey;
-  }
-
-  /// Encrypts the provided [value] using the AES encryption algorithm.
-  ///
-  /// The [value] parameter represents the string to be encrypted.
-  /// The encryption key used is obtained from the SharedPreferencesWrapper instance.
-  ///
-  /// Returns the Base64-encoded encrypted value.
-  String _encryptValue(String value) {
-    var instance = SharedPreferencesWrapper.createInstance();
-    String encryptionKey = instance._getEncryptionKey()!;
-
-    final key = Key.fromUtf8(encryptionKey);
-    final iv = IV.fromLength(16);
-
-    final encrypter = Encrypter(AES(key));
-    final encrypted = encrypter.encrypt(value, iv: iv);
-    return encrypted.base64;
-  }
-
-  /// Decrypts the provided Base64-encoded [encryptedBase64] string.
-  ///
-  /// The [encryptedBase64] parameter represents the encrypted string in Base64 format.
-  /// The decryption key used is obtained from the SharedPreferencesWrapper instance.
-  ///
-  /// Returns the decrypted value.
-  dynamic _decryptValue(String encryptedBase64) {
-    var instance = SharedPreferencesWrapper.createInstance();
-    String encryptionKey = instance._getEncryptionKey()!;
-
-    final key = Key.fromUtf8(encryptionKey);
-    final iv = IV.fromLength(16);
-
-    final encrypter = Encrypter(AES(key));
-
-    final encrypted = Encrypted.fromBase64(encryptedBase64);
-    final decrypted = encrypter.decrypt(encrypted, iv: iv);
-    return decrypted;
+    return SharedPreferencesWrapper();
   }
 
   /// Adds a string value to shared preferences with the given [key].
-  static addString(String key, String value) async {
+  static addString(String key, String value,
+      {AESEncryption? aesEncryption,
+      Salsa20Encryption? salsa20Encryption}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String newValue = value;
-    var instance = SharedPreferencesWrapper.createInstance();
-    String? encryptionKey = instance._getEncryptionKey();
 
-    if (encryptionKey != null) {
-      String encrypted = instance._encryptValue(value);
-      value = encrypted;
+    if (aesEncryption != null) {
+      aesEncryption.accessKey = key;
+      aesEncryption.value = value;
+      String encryptedStr = await aesEncryption.encrypt;
+      value = encryptedStr;
     }
+
+    if (salsa20Encryption != null) {
+      salsa20Encryption.accessKey = key;
+      salsa20Encryption.value = value;
+      String encryptedStr = await salsa20Encryption.encrypt;
+      value = encryptedStr;
+    }
+
+    // if (fernetEncryption != null) {
+    //   fernetEncryption.value = value;
+    //   String encryptedStr = await fernetEncryption.encrypt;
+    //   value = encryptedStr;
+    // }
 
     prefs.setString(key, value);
 
@@ -155,17 +97,29 @@ class SharedPreferencesWrapper {
   }
 
   /// Retrieves a string value from shared preferences using the given [key].
-  static Future<String?> getString(String key, {String? defaultValue}) async {
+  static Future<String?> getString(String key,
+      {String? defaultValue,
+      AESDecryption? aesDecryption,
+      Salsa20Decryption? salsa20Decryption}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //Return string
     String? stringValue = prefs.getString(key);
-
-    var instance = SharedPreferencesWrapper.createInstance();
-    String? encryptionKey = instance._getEncryptionKey();
-    if (encryptionKey != null && stringValue != null) {
-      final decrypted = instance._decryptValue(stringValue);
-      stringValue = decrypted;
+    if (aesDecryption != null) {
+      aesDecryption.accessKey = key;
+      aesDecryption.encryptedValue = stringValue!;
+      stringValue = await aesDecryption.decrypt;
     }
+
+    if (salsa20Decryption != null) {
+      salsa20Decryption.accessKey = key;
+      salsa20Decryption.encryptedValue = stringValue!;
+      stringValue = await salsa20Decryption.decrypt;
+    }
+
+    // if (fernetDecryption != null) {
+    //   fernetDecryption.encryptedValue = stringValue!;
+    //   stringValue = await fernetDecryption.decrypt;
+    // }
 
     stringValue = _setDefaultValue(stringValue, defaultValue);
 
@@ -293,6 +247,19 @@ class SharedPreferencesWrapper {
   static Future<void> removeAtKey(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(key);
+  }
+
+  /// Removes a values where key starts with the given [key] from shared preferences.
+  static Future<void> removeWhereKeyStartsWith(String keyPrefix) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final keys = prefs.getKeys();
+
+    for (var key in keys) {
+      if (key.startsWith(keyPrefix)) {
+        await prefs.remove(key);
+      }
+    }
   }
 
   /// Clears all values from shared preferences.
@@ -472,9 +439,9 @@ class SharedPreferencesWrapper {
   // Method to notify the observer
   static void _notifyObservers(String key, dynamic value) {
     if (_observers.containsKey(key)) {
-      _observers[key]!.forEach((observer) {
+      for (var observer in _observers[key]!) {
         observer(key, value);
-      });
+      }
     }
   }
 
@@ -523,18 +490,21 @@ class SharedPreferencesWrapper {
       } else if (value.contains('{') && value.contains('}')) {
         Map<String, dynamic> jsonMap = jsonDecode(value);
         value = jsonMap;
-      } else {
-        var instance = SharedPreferencesWrapper.createInstance();
-        String? encryptionKey = instance._getEncryptionKey();
-        if (encryptionKey != null) {
-          final decrypted = instance._decryptValue(value);
-          value = decrypted;
-        }
       }
     }
 
     value = _setDefaultValue(value, defaultValue);
 
     return value;
+  }
+
+  /// Creates and returns a new instance of `SharedPrefsWrapperBuilder` using a future.
+  static Future<ConcreteSharedPrefsWrapperBuilder> getBuilder() async {
+    return ConcreteSharedPrefsWrapperBuilder();
+  }
+
+  /// Creates and returns a new instance of `NamespacedPreference` using a future.
+  static ConcreteNamespacedPrefs createNamespace(String namespace) {
+    return ConcreteNamespacedPrefs(namespace);
   }
 }

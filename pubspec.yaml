@@ -1,10 +1,10 @@
 name: shared_preferences_wrapper
 description: A Flutter package that provides a simple wrapper for working with shared preferences. This package simplifies the process of storing and retrieving various data types.
-version: 0.0.3+1
+version: 0.0.4
 homepage: https://github.com/youngcet/shared_preferences_wrapper
 
 environment:
-  sdk: '>=2.19.0 <4.0.0'
+  sdk: '>=2.19.0 <3.0.0'
   flutter: ">=1.17.0"
 
 dependencies:

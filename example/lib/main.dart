@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences_wrapper/shared_preferences_wrapper_encryption.dart';
 import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
 
 void main() {
@@ -54,6 +55,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String text = '';
 
+  String secretKey16Char = 'my16CharacterKey';
+  String secretKey32Char = 'my32lengthsupersecretnooneknows1';
+
   void handleChangeListener() {
     print("Listener triggered!");
   }
@@ -66,10 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // set an encryption key, this has to be 16/24/32 character long
       // CURRENTLY ONLY STRING DATA TYPES ARE SUPPORTED
-      SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
+      //SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
 
       // Registering Listeners with callback function for when a shared preference changes
       SharedPreferencesWrapper.addListener('key', handleChangeListener);
@@ -83,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // // storing values
       // // note: refer to the documentation for storing other data types
       await SharedPreferencesWrapper.addString('key', 'value');
+
       await SharedPreferencesWrapper.addInt('int', 100);
 
       // retrieve values
@@ -176,7 +182,48 @@ class _MyHomePageState extends State<MyHomePage> {
 
       await SharedPreferencesWrapper.setValue('usr', true);
       final val = await SharedPreferencesWrapper.getValue('usr');
+
       print('val: $val');
+
+      await SharedPreferencesWrapper.getBuilder().then((builder) => {
+            builder
+                .addBool('builder_bool', true)
+                .addDouble('builder_double', 10.0)
+                .addString('builder_str', 'str value')
+                .addInt('builder_int', 100)
+                .addMap('builder_map', {
+              'name': 'Yung',
+              'lname': 'Cet'
+            }).addStringList('builder_list', ['item 1', 'item 2'])
+          });
+
+      final builder_bool =
+          await SharedPreferencesWrapper.getValue('builder_bool');
+      print('builder_bool: $builder_bool');
+
+      final userPrefs = SharedPreferencesWrapper.createNamespace('user');
+      await userPrefs.setValue('name', 'John Doe');
+
+      String? userName = await userPrefs.getValue('name');
+      print('userName: $userName');
+      await userPrefs.clearNamespace();
+
+      final appPrefs = SharedPreferencesWrapper.createNamespace('app');
+      await appPrefs.setValue('dark_mode', true);
+
+      bool? mode = await appPrefs.getValue('dark_mode');
+      print('mode: $mode');
+
+      // ENCRYPTIONS
+      String pinKey = 'pin';
+      String pin = '123456';
+      await SharedPreferencesWrapper.addString(pinKey, pin,
+          salsa20Encryption: Salsa20Encryption(encryptionKey: secretKey16Char));
+
+      String? mypin = await SharedPreferencesWrapper.getString(pinKey,
+          salsa20Decryption: Salsa20Decryption(encryptionKey: secretKey16Char));
+
+      print('pin: $mypin');
     });
   }
 
