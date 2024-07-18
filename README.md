@@ -369,8 +369,8 @@ There are two types of encryption to choose from:
 - **AES**
 - **Salsa20**
 
-### <span style="color:red">DEPRICATED</span>
-This method of setting the encryption has been depricated and is no longer supported. Please refer to the sections below this section for a new way of implementing encryption.
+### <span style="color:red">DEPRECATED</span>
+This method of setting the encryption has been deprecated and is no longer supported. Please refer to the sections below this section for a new way of implementing encryption.
 
 - **setEncryptionKey(String key)**: Sets an encryption key to encrypt and decrypt sensitive data stored in shared preferences. **CURRENTLY ONLY STRINGS ARE SUPPORTED.** This means that when the key is set, it will be applied to only String data types when adding and retrieving strings.
 ```dart

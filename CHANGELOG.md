@@ -2,7 +2,7 @@
 - Namespace Support: Implement namespaces for easier management of different sets of preferences.
 - Encryption Options (AES & Salsa20): Enhance encryption features to support different encryption algorithms and improve security.
 - A fluent API for chaining multiple operations in a more readable manner.
-- Deprication of setEncryptionKey(), refer to the documentation
+- Deprecation of setEncryptionKey(), refer to the documentation
 
 ## 0.0.3+2
 - fixed pub dev analysis issues
