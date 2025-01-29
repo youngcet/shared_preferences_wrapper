@@ -180,10 +180,14 @@ class _MyHomePageState extends State<MyHomePage> {
           'observer', handleObserverChanges);
       await SharedPreferencesWrapper.addString('observer', 'value2');
 
-      await SharedPreferencesWrapper.setValue('usr', true);
-      final val = await SharedPreferencesWrapper.getValue('usr');
+      await SharedPreferencesWrapper.setValue('token', '12345678910', expirationDuration: Duration(days: 1));
+      final val = await SharedPreferencesWrapper.getValue('token');
 
-      print('val: $val');
+      print('cached data: $val');
+      Future.delayed(const Duration(seconds: 20), ()async {
+        final data = await SharedPreferencesWrapper.getValue('token');
+        print('cached data after 20 seconds: $data');
+      });
 
       await SharedPreferencesWrapper.getBuilder().then((builder) => {
             builder

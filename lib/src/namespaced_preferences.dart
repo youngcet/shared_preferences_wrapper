@@ -1,4 +1,4 @@
-import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
+import 'shared_preferences_wrapper.dart';
 
 /// An abstract class that provides namespaced access to SharedPreferences.
 ///

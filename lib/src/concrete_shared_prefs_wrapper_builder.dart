@@ -1,4 +1,4 @@
-import 'package:shared_preferences_wrapper/shared_prefs_wrapper_builder.dart';
+import 'shared_prefs_wrapper_builder.dart';
 
 /// A concrete implementation of [SharedPrefsWrapperBuilder].
 ///

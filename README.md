@@ -1,3 +1,13 @@
+<p align="center">    
+    <a href="https://github.com/youngcet/shared_preferences_wrapper"><img src="https://img.shields.io/github/stars/youngcet/shared_preferences_wrapper?style=social" alt="Repo stars"></a>
+    <a href="https://github.com/youngcet/shared_preferences_wrapper/commits/master"><img src="https://img.shields.io/github/last-commit/youngcet/shared_preferences_wrapper/master?logo=git" alt="Last Commit"></a>
+    <a href="https://github.com/youngcet/shared_preferences_wrapper/pulls"><img src="https://img.shields.io/github/issues-pr/youngcet/shared_preferences_wrapper" alt="Repo PRs"></a>
+    <a href="https://github.com/youngcet/shared_preferences_wrapper/issues?q=is%3Aissue+is%3Aopen"><img src="https://img.shields.io/github/issues/youngcet/shared_preferences_wrapper" alt="Repo issues"></a>
+    <a href="https://github.com/youngcet/shared_preferences_wrapper/graphs/contributors"><img src="https://badgen.net/github/contributors/youngcet/shared_preferences_wrapper" alt="Contributors"></a>
+    <a href="https://github.com/youngcet/shared_preferences_wrapper/blob/master/LICENSE"><img src="https://badgen.net/github/license/youngcet/shared_preferences_wrapper" alt="License"></a>
+    <br>       
+    <a href="https://app.codecov.io/gh/youngcet/shared_preferences_wrapper"><img src="https://img.shields.io/codecov/c/github/youngcet/shared_preferences_wrapper?logo=codecov&logoColor=white" alt="Coverage Status"></a>
+</p>
 
 # SharedPreferences Wrapper
 
@@ -5,6 +15,7 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 
 [![Pub Version](https://img.shields.io/pub/v/shared_preferences_wrapper)](https://pub.dev/packages/shared_preferences_wrapper)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/youngcet/shared_preferences_wrapper/blob/main/LICENSE)
+<a href="https://pub.dev/packages/shared_preferences_wrapper"><img src="https://badgen.net/pub/popularity/shared_preferences_wrapper" alt="Pub popularity"></a>
 
 ## Features
 
@@ -21,6 +32,7 @@ A Flutter package that provides a simple wrapper for working with shared prefere
 - Organize preferences based on specific groups or categories.
 - Namespace Support: Implement namespaces for easier management of different sets of preferences.
 - A fluent API for chaining multiple operations in a more readable manner.
+- A caching manager that allows storing and managing data in shared preferences with  expiration times. 
 
 ## Supported Data Types
 - **String**
@@ -75,7 +87,18 @@ await SharedPreferencesWrapper.setValue('user', {'name': 'Yung', 'lname': 'Cet'}
 final user = await SharedPreferencesWrapper.getValue('user');
 ```
 
-#### Setting a default value in getValue()
+### `setValue` Method
+The setValue method is a versatile utility to store different types of data into your persistent storage or cache. It allows you to store String, int, double, bool, List<String>, and Map<String, dynamic> values. Additionally, it supports an optional expiration time for cached data, so that the stored value can automatically be removed after the specified duration.
+
+### Storing Data With Expiration
+```dart 
+// The data will expire after 7 days
+await setValue('user_name', 'John Doe', expirationDuration: Duration(days: 7));
+// The data will expire after 24 hours
+await setValue('user_isLoggedIn', true, expirationDuration: Duration(hours: 24));
+```
+
+### Setting a default value in getValue()
 You can specify a default value for when a key does not exist in shared preferences instead of returning null. This can be set for any of the supported data types above.
 ```dart
 final name = await SharedPreferencesWrapper.getValue('name', defaultValue: '');
@@ -369,24 +392,6 @@ There are two types of encryption to choose from:
 - **AES**
 - **Salsa20**
 
-### <span style="color:red">DEPRECATED</span>
-This method of setting the encryption has been deprecated and is no longer supported. Please refer to the sections below this section for a new way of implementing encryption.
-
-- **setEncryptionKey(String key)**: Sets an encryption key to encrypt and decrypt sensitive data stored in shared preferences. **CURRENTLY ONLY STRINGS ARE SUPPORTED.** This means that when the key is set, it will be applied to only String data types when adding and retrieving strings.
-```dart
-// set an encryption key, this has to be 16/24/32 character long
-// NOTE: you must set the encryption key before storing strings in shared preferences
-// This will apply to all string data types stored if the encryption key is set
-SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
-
-// Once the key is set, whenever a string is stored in shared preferences the encryption is applied
-await SharedPreferencesWrapper.addString('key', 'value');
-
-// To remove encryption, simply remove SharedPreferencesWrapperEncryption.setEncryptionKey('my16CharacterKey');
-```
-
-NOTE: Encryption can only be applied via the **addString()** and not **setValue()**. To get the decrypted value use **getString()** and not **getValue()**.
-
 ### AES Encryption
 ```dart
 // import the encryption library
@@ -459,6 +464,20 @@ print('appSettings: $appSettings');
 
 Please refer to the example code provided in the package repository for more usage examples.
 
+## Caching Data
+`SharedPreferencesWrapper` allows caching of data with automatic expiration times. The cached data is stored for a specific duration and is automatically removed once the data expires. The data cached can be any of the supported data listed above.
+
+  ```dart
+  // data expires after 1 hour
+  await SharedPreferencesWrapper.cacheData('sessionToken', '123abc', Duration(hours: 1));
+
+  // get cached data
+  var data = await SharedPreferencesWrapper.getCachedData('sessionToken');
+
+  // manually clear the cached data
+  await SharedPreferencesWrapper.clearCache('sessionToken');
+```
+
 ## Methods
 
 - **addString(String key, String value)**: Adds a string to shared preferences.
@@ -491,7 +510,7 @@ Please refer to the example code provided in the package repository for more usa
 - **updateBatch(Map<String, dynamic> data)**: Update multiple key-value pairs in a single batch.
 - **addToGroup(String groupName, String key, dynamic value)** Organize preferences based on specific groups or categories.
 - **getGroup(String groupName)** Get preferences based on specific groups or categories.
-- **setValue(String key, dynamic value)** Sets a value in SharedPreferences.
+- **setValue(String key, dynamic value, {Duration expirationDuration})** Sets a value in SharedPreferences.
 - **getValue(String key, {dynamic defaultValue})** Retrieves a value from SharedPreferences.
 - **getBuilder()** Chains methods together.
 - **createNamespace(String namespace)** Create a namespace.

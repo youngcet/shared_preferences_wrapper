@@ -1,3 +1,26 @@
+## 0.0.5
+- **Updated setValue method:**
+  - Added a new optional parameter expirationDuration of type Duration?.
+  - If expirationDuration is provided, the stored value will be cached with an expiration time.
+  - This change allows values to be stored with an expiration, automatically removing them after the specified duration.
+  - This update supports enhanced caching behavior, where persistent storage can now be time-bound.
+
+- **Added Cache Management:**
+  - Introduced a new caching manager that uses SharedPreferencesWrapper for storing data with expiration times.
+  - The cache manager supports storing, retrieving, and clearing cached data, with automatic removal of expired data.
+
+    **Key Features:**
+
+    - Store Data with Expiration: Cache data for a specified duration, after which it will be automatically removed.
+    - Retrieve Cached Data: Access cached data as long as it hasn't expired.
+    - Clear Cached Data: Easily remove specific cached data from shared preferences.
+
+    **New Methods:**
+
+    - **cacheData(String key, dynamic data, Duration expirationDuration):** Caches the given data for a specified duration.
+    - **getCachedData(String key):** Retrieves the cached data associated with the given key, or returns null if expired or not found.
+    - **clearCache(String key):** Clears the cached data associated with the given key.
+
 ## 0.0.4
 - Namespace Support: Implement namespaces for easier management of different sets of preferences.
 - Encryption Options (AES & Salsa20): Enhance encryption features to support different encryption algorithms and improve security.

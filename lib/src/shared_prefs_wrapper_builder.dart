@@ -1,4 +1,4 @@
-import 'package:shared_preferences_wrapper/shared_preferences_wrapper.dart';
+import 'shared_preferences_wrapper.dart';
 
 /// A builder class for configuring a `SharedPrefsWrapper` instance with a fluent API.
 abstract class SharedPrefsWrapperBuilder {

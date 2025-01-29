@@ -1,4 +1,4 @@
-import 'package:shared_preferences_wrapper/namespaced_preferences.dart';
+import 'src/namespaced_preferences.dart';
 
 /// A concrete implementation of [NamespacedPreferences].
 ///
