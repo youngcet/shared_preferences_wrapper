@@ -88,14 +88,14 @@ final user = await SharedPreferencesWrapper.getValue('user');
 ```
 
 ### `setValue` Method
-The setValue method is a versatile utility to store different types of data into your persistent storage or cache. It allows you to store String, int, double, bool, List<String>, and Map<String, dynamic> values. Additionally, it supports an optional expiration time for cached data, so that the stored value can automatically be removed after the specified duration.
+The setValue method is a versatile utility to store different types of data into your persistent storage or cache. It allows you to store String, int, double, bool, List, and Map values. Additionally, it supports an optional expiration time for cached data, so that the stored value can automatically be removed after the specified duration.
 
 ### Storing Data With Expiration
 ```dart 
 // The data will expire after 7 days
-await setValue('user_name', 'John Doe', expirationDuration: Duration(days: 7));
+await SharedPreferencesWrapper.setValue('user_name', 'John Doe', expirationDuration: Duration(days: 7));
 // The data will expire after 24 hours
-await setValue('user_isLoggedIn', true, expirationDuration: Duration(hours: 24));
+await SharedPreferencesWrapper.setValue('user_isLoggedIn', true, expirationDuration: Duration(hours: 24));
 ```
 
 ### Setting a default value in getValue()

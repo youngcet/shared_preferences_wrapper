@@ -1,3 +1,10 @@
+## 1.0.0
+### Updated
+
+- **Dart SDK** updated to `3.8.1` to support latest language improvements and toolchain stability.
+- **Flutter SDK** updated to `3.32.8`.
+- Updated package dependencies in `pubspec.yaml` to latest compatible versions
+
 ## 0.0.5
 - **Updated setValue method:**
   - Added a new optional parameter expirationDuration of type Duration?.

@@ -11,14 +11,14 @@ typedef PreferenceChangeListener = void Function(String key);
 
 /// A wrapper class for managing shared preferences in a structured way.
 ///
-/// [SharedPreferencesWrapper] provides convenient methods to interact with 
-/// the shared preferences storage in Flutter. It supports storing various 
-/// data types like strings, integers, doubles, booleans, and lists of strings. 
-/// The class also allows for the use of encryption (AES and Salsa20) to secure 
+/// [SharedPreferencesWrapper] provides convenient methods to interact with
+/// the shared preferences storage in Flutter. It supports storing various
+/// data types like strings, integers, doubles, booleans, and lists of strings.
+/// The class also allows for the use of encryption (AES and Salsa20) to secure
 /// the values being stored.
 ///
-/// In addition to basic storage, the class includes functionality to manage 
-/// event listeners and observers, which can be used to respond to changes 
+/// In addition to basic storage, the class includes functionality to manage
+/// event listeners and observers, which can be used to respond to changes
 /// in specific keys stored in shared preferences.
 ///
 /// ### Example Usage:
@@ -28,11 +28,11 @@ typedef PreferenceChangeListener = void Function(String key);
 ///
 /// // Add an integer value
 /// await SharedPreferencesWrapper.setValue('age', 30);
-/// 
+///
 /// // Get value
 /// await SharedPreferencesWrapper.getValue('username');
 /// await SharedPreferencesWrapper.getValue('age');
-/// 
+///
 /// ```
 ///
 /// ### Features:
@@ -323,7 +323,7 @@ class SharedPreferencesWrapper {
 
   /// Adds a [listener] callback for the given event [key].
   ///
-  /// The listener will be called when the event 
+  /// The listener will be called when the event
   /// is triggered by [notifyListeners].
   ///
   /// - Parameters:
@@ -362,7 +362,7 @@ class SharedPreferencesWrapper {
   /// Adds multiple key-value pairs to the shared preferences in a batch operation.
   ///
   /// The [data] parameter is a map where the keys are strings representing the preference keys
-  /// and the values can be of types String, int, double, bool, List<String>, or Map<String, dynamic>.
+  /// and the values can be of types String, int, double, bool, List, or Map.
   ///
   /// Depending on the type of value, it will be stored in the shared preferences accordingly:
   /// - String values are stored using [SharedPreferences.setString].
@@ -490,14 +490,14 @@ class SharedPreferencesWrapper {
   }
 
   /// Sets a value in SharedPreferences identified by [key] based on its data type [value].
-  /// 
-  /// It supports storing `String`, `int`, `double`, `bool`, `List<String>`, and `Map<String, dynamic>` values. 
+  ///
+  /// It supports storing `String`, `int`, `double`, `bool`, `List<String>`, and `Map<String, dynamic>` values.
   /// The data can optionally be stored with an expiration duration, after which it will be automatically removed.
   ///
   /// ## Parameters:
   /// - `key` (String): The unique key used to identify the stored value.
   /// - `value` (dynamic): The value to be stored. It can be of type `String`, `int`, `double`, `bool`, `List<String>`, or `Map<String, dynamic>`.
-  /// - `expirationDuration` (Duration?, optional): The duration for which the stored value will remain valid. 
+  /// - `expirationDuration` (Duration?, optional): The duration for which the stored value will remain valid.
   ///   If `null`, the value will be stored indefinitely.
   ///
   /// ## Throws:
@@ -509,11 +509,11 @@ class SharedPreferencesWrapper {
   /// await setValue('user_age', 30);
   /// await setValue('user_isLoggedIn', true, expirationDuration: Duration(days: 7));
   /// ```
-  static setValue(String key, dynamic value, {Duration? expirationDuration}) async {
-    
-    if (expirationDuration != null){
+  static setValue(String key, dynamic value,
+      {Duration? expirationDuration}) async {
+    if (expirationDuration != null) {
       await cacheData(key, value, expirationDuration);
-    }else{
+    } else {
       if (value is String) {
         await addString(key, value);
       } else if (value is int) {
@@ -559,8 +559,8 @@ class SharedPreferencesWrapper {
   }
 
   /// Creates and returns a new instance of `SharedPrefsWrapperBuilder`.
-  /// This is an asynchronous function that returns a future containing 
-  /// a new instance of [SharedPrefsWrapperBuilder]. It can be used 
+  /// This is an asynchronous function that returns a future containing
+  /// a new instance of [SharedPrefsWrapperBuilder]. It can be used
   /// to build or initialize shared preferences functionality.
   ///
   /// Example usage:
@@ -586,23 +586,23 @@ class SharedPreferencesWrapper {
 
   /// Creates a [NamespacedPreference] instance for the given [namespace].
   ///
-  /// This method returns a new instance of [NamespacedPreference], which is 
-  /// initialized with the specified [namespace]. The namespace helps isolate 
-  /// shared preferences under a specific name, allowing you to manage them 
+  /// This method returns a new instance of [NamespacedPreference], which is
+  /// initialized with the specified [namespace]. The namespace helps isolate
+  /// shared preferences under a specific name, allowing you to manage them
   /// separately from others.
   ///
   /// Example usage:
   /// ```dart
   /// final userPrefs = SharedPrefsWrapper.createNamespace('userSettings');
   /// await userPrefs.setValue('name', 'John Doe');
-  /// 
+  ///
   /// // create another namespace
   /// final appPrefs = SharedPreferencesWrapper.createNamespace('app');
   /// await appPrefs.setValue('dark_mode', true);
-  /// 
+  ///
   /// // access the values using getValue() function
   /// String? userName = await userPrefs.getValue('name');
-  /// 
+  ///
   /// // clear namespace
   /// await userPrefs.clearNamespace();
   /// ```
@@ -615,12 +615,12 @@ class SharedPreferencesWrapper {
     return ConcreteNamespacedPrefs(namespace);
   }
 
-  /// Caches the [data] associated with the given [key] for the specified 
+  /// Caches the [data] associated with the given [key] for the specified
   /// [expirationDuration].
   ///
-  /// Once the data expires, it will be automatically removed from the 
+  /// Once the data expires, it will be automatically removed from the
   /// cache.
-  /// 
+  ///
   ///   Example usage:
   /// ```dart
   /// await SharedPreferencesWrapper.cacheData('sessionToken', '123abc', Duration(hours: 1));
@@ -631,16 +631,18 @@ class SharedPreferencesWrapper {
   ///   - [data]: The string data to be cached.
   ///   - [expirationDuration]: The duration after which the data will expire.
   ///
-  static Future<void> cacheData(String key, dynamic data, Duration expirationDuration) async {
-    await SharedPreferencesWrapperCacheManager.cacheData(key, data, expirationDuration);
+  static Future<void> cacheData(
+      String key, dynamic data, Duration expirationDuration) async {
+    await SharedPreferencesWrapperCacheManager.cacheData(
+        key, data, expirationDuration);
   }
 
   /// Retrieves the cached data associated with the given [key], if it exists
   /// and has not expired.
   ///
-  /// If the cached data has expired, it will be removed from the cache, and 
+  /// If the cached data has expired, it will be removed from the cache, and
   /// `null` will be returned. If no data is found, `null` will also be returned.
-  /// 
+  ///
   ///  Example usage:
   /// ```dart
   /// await SharedPreferencesWrapper.getCachedData('sessionToken');
@@ -649,7 +651,7 @@ class SharedPreferencesWrapper {
   /// - Parameters:
   ///   - [key]: The unique key used to retrieve the cached data.
   ///
-  /// - Returns: A [Future] that resolves to the cached data, or `null` if no 
+  /// - Returns: A [Future] that resolves to the cached data, or `null` if no
   /// data is found or the data has expired.
   static Future<dynamic> getCachedData(String key) async {
     return await SharedPreferencesWrapperCacheManager.getCachedData(key);
@@ -662,7 +664,7 @@ class SharedPreferencesWrapper {
   ///
   /// Example usage:
   /// ```dart
-  /// await SharedPreferencesWrapper.clearCache('sessionToken'); 
+  /// await SharedPreferencesWrapper.clearCache('sessionToken');
   /// ```
   static Future<void> clearCache(String key) async {
     await SharedPreferencesWrapperCacheManager.clearCache(key);
